@@ -38,6 +38,9 @@ var maze = 0
 
 var win = false
 
+/* tag to avoid playing the same sound over and over on the same event (i.e. key repeat) */
+var sound_no_repeat_tag = null
+
 function start(items_, relativeMode_, invisibleMode_) {
     items = items_
     relativeMode = relativeMode_
@@ -337,6 +340,13 @@ function checkSuccess() {
     }
 }
 
+function processReleasedKey(event) {
+    /* clear sound tag once the key has been 'truly' released */
+    if (!event.isAutoRepeat) {
+      sound_no_repeat_tag = null
+    }
+}
+
 function processPressedKey(event) {
     /* Mode invisible */
     if (invisibleMode && event.key === Qt.Key_Space) {
@@ -348,26 +358,26 @@ function processPressedKey(event) {
         /* Move the player */
         switch (event.key) {
         case Qt.Key_Right:
-            clickRight()
+            clickRight("key")
             event.accepted = true
             break
         case Qt.Key_Left:
-            clickLeft()
+            clickLeft("key")
             event.accepted = true
             break
         case Qt.Key_Up:
-            clickUp()
+            clickUp("key")
             event.accepted = true
             break
         case Qt.Key_Down:
-            clickDown()
+            clickDown("key")
             event.accepted = true
             break
         }
     }
 }
 
-function clickRight() {
+function clickRight(sound_tag) {
     /* Move the player */
     if ((!invisibleMode || !items.wallVisible)
             && (items.playery !== items.doory
@@ -383,7 +393,7 @@ function clickRight() {
             if (!(maze[getId(items.playerx, items.playery)] & EAST)) {
                 ++items.playerx
             } else {
-                items.audioEffects.play("qrc:/gcompris/src/core/resource/sounds/brick.wav")
+                play_wall_sound(sound_tag)
             }
         }
     }
@@ -392,7 +402,7 @@ function clickRight() {
     checkSuccess()
 }
 
-function clickLeft() {
+function clickLeft(sound_tag) {
     /* Move the player */
     if ((!invisibleMode || !items.wallVisible)
             && (items.playery !== items.doory
@@ -408,7 +418,7 @@ function clickLeft() {
             if (!(maze[getId(items.playerx, items.playery)] & WEST)) {
                 --items.playerx
             } else {
-                items.audioEffects.play("qrc:/gcompris/src/core/resource/sounds/brick.wav")
+                play_wall_sound(sound_tag)
             }
         }
     }
@@ -417,7 +427,7 @@ function clickLeft() {
     checkSuccess()
 }
 
-function clickDown() {
+function clickDown(sound_tag) {
     /* Move the player */
     if ((!invisibleMode || !items.wallVisible)
             && (items.playery !== items.doory
@@ -437,7 +447,7 @@ function clickDown() {
             if (!(maze[getId(items.playerx, items.playery)] & SOUTH)) {
                 ++items.playery
             } else {
-                items.audioEffects.play("qrc:/gcompris/src/core/resource/sounds/brick.wav")
+                play_wall_sound(sound_tag)
             }
         }
     }
@@ -446,7 +456,7 @@ function clickDown() {
     checkSuccess()
 }
 
-function clickUp() {
+function clickUp(sound_tag) {
     /* Move the player */
     if ((!invisibleMode || !items.wallVisible)
             && (items.playery !== items.doory
@@ -457,25 +467,25 @@ function clickUp() {
                 if (!(maze[getId(items.playerx, items.playery)] & EAST)) {
                     ++items.playerx
                 } else {
-                    items.audioEffects.play("qrc:/gcompris/src/core/resource/sounds/brick.wav")
+                    play_wall_sound(sound_tag)
                 }
             } else if (getPlayerRotation() === 180) {
                 if (!(maze[getId(items.playerx, items.playery)] & NORTH)) {
                     --items.playery
                 } else {
-                    items.audioEffects.play("qrc:/gcompris/src/core/resource/sounds/brick.wav")
+                    play_wall_sound(sound_tag)
                 }
             } else if (getPlayerRotation() === 90) {
                 if (!(maze[getId(items.playerx, items.playery)] & WEST)) {
                     --items.playerx
                 } else {
-                    items.audioEffects.play("qrc:/gcompris/src/core/resource/sounds/brick.wav")
+                    play_wall_sound(sound_tag)
                 }
             } else {
                 if (!(maze[getId(items.playerx, items.playery)] & SOUTH)) {
                     ++items.playery
                 } else {
-                    items.audioEffects.play("qrc:/gcompris/src/core/resource/sounds/brick.wav")
+                    play_wall_sound(sound_tag)
                 }
             }
         } else {
@@ -485,11 +495,19 @@ function clickUp() {
             if (!(maze[getId(items.playerx, items.playery)] & NORTH)) {
                 --items.playery
             } else {
-                items.audioEffects.play("qrc:/gcompris/src/core/resource/sounds/brick.wav")
+                play_wall_sound(sound_tag)
             }
         }
     }
 
     /* Check if success */
     checkSuccess()
+}
+
+function play_wall_sound(tag) {
+    /* skip sound if we already played it during this event (e.g. key repeat) */
+    if (tag && tag == sound_no_repeat_tag) return
+
+    items.audioEffects.play("qrc:/gcompris/src/core/resource/sounds/brick.wav")
+    sound_no_repeat_tag = tag
 }

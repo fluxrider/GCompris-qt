@@ -37,6 +37,7 @@ ActivityBase {
     }
 
     Keys.onPressed: Activity.processPressedKey(event)
+    Keys.onReleased: Activity.processReleasedKey(event)
 
     pageComponent: Image {
         id: background
@@ -182,25 +183,25 @@ ActivityBase {
                 if(Math.abs(moveX) * ApplicationInfo.ratio > 10 &&
                    Math.abs(moveX) > Math.abs(moveY)) {
                     if(moveX > 10 * ApplicationInfo.ratio)
-                        Activity.clickRight()
+                        Activity.clickRight(null)
                     else if(moveX < -10 * ApplicationInfo.ratio)
-                        Activity.clickLeft()
+                        Activity.clickLeft(null)
                 } else if(Math.abs(moveY) * ApplicationInfo.ratio > 10 &&
                           Math.abs(moveX) < Math.abs(moveY)) {
                     if(moveY > 10 * ApplicationInfo.ratio)
-                        Activity.clickDown()
+                        Activity.clickDown(null)
                     else if(moveY < -10 * ApplicationInfo.ratio)
-                        Activity.clickUp()
+                        Activity.clickUp(null)
                 } else {
                     // No move, just a tap or mouse click
                     if(point1.x > player.x + player.width)
-                        Activity.clickRight()
+                        Activity.clickRight(null)
                     else if(point1.x < player.x)
-                        Activity.clickLeft()
+                        Activity.clickLeft(null)
                     else if(point1.y < player.y)
-                        Activity.clickUp()
+                        Activity.clickUp(null)
                     else if(point1.y > player.y + player.height)
-                        Activity.clickDown()
+                        Activity.clickDown(null)
 
                 }
 
